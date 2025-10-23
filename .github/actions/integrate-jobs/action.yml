@@ -1,0 +1,43 @@
+name: Integrate Jobs
+description: 'Integrate logs'
+
+inputs:
+  job-names:
+    description: 'List of job names'
+    required: true
+  gh-token:
+    description: 'GitHub auth Token'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v3
+    - name: Download job log artifacts
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.gh-token }}
+      run: |
+        IFS=',' read -ra JOBS <<< "${{ inputs.job-names }}"
+        mkdir logs
+        for job in "${JOBS[@]}"; do
+          echo "Downloading artifact for $job"
+          gh run download --name "${job}Data" --dir logs || true
+        done
+        echo "Artifacts downloaded:"
+        ls -R logs
+
+    - name: Combine logs
+      shell: bash
+      run: |
+        cd logs
+        cat *.log > ../combined.txt
+        cd ..
+        echo "Combined file created:"
+        cat combined.txt
+
+    - name: Upload combined artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: integrationData
+        path: combined.txt

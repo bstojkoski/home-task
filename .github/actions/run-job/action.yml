@@ -1,0 +1,30 @@
+name: Run Job
+description: 'Run a job using prep.txt'
+
+inputs:
+  job-name:
+    description: 'Name of the job'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Download prep.txt artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: prepData
+        path: ./prepData
+
+    - name: Run Job Script
+      shell: bash
+      run: |
+        JOB_NAME="${{ inputs.job-name }}"
+        echo "Running $JOB_NAME..."
+        echo "$JOB_NAME running with $(cat ./prepData/prep.txt)" > "${JOB_NAME}.log"
+        cat "${JOB_NAME}.log"
+
+    - name: Upload job log artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.job-name }}Data
+        path: ${{ inputs.job-name }}.log

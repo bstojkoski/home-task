@@ -1,0 +1,51 @@
+name: Jenkins Equivalent Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  preparation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bstojkoski/home-task/.github/actions/prepare-run@v1.0.0
+
+  jobA:
+    needs: preparation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bstojkoski/home-task/.github/actions/run-job@v1.0.0
+        with:
+          job-name: JobA
+
+  jobB:
+    needs: preparation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bstojkoski/home-task/.github/actions/run-job@v1.0.0
+        with:
+          job-name: JobB
+
+  jobC:
+    needs: preparation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bstojkoski/home-task/.github/actions/run-job@v1.0.0
+        with:
+          job-name: JobC
+
+  integration:
+    needs: [jobA, jobB, jobC]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bstojkoski/home-task/.github/actions/integrate-jobs@v1.0.0
+        with:
+          job-names: JobA,JobB,JobC
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    needs: integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bstojkoski/home-task/.github/actions/deploy@v1.0.0

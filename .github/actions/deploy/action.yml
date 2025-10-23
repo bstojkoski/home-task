@@ -1,0 +1,17 @@
+name: Deploy
+description: 'Deploy combined results'
+
+runs:
+  using: composite
+  steps:
+    - name: Download integration artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: integrationData
+        path: .
+
+    - name: Deploy combined results
+      shell: bash
+      run: |
+        echo "Deploy combined results:"
+        cat combined.txt

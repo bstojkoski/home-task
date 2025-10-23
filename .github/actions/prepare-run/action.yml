@@ -1,0 +1,20 @@
+name: Prepare Run
+description: 'Generate RunID and prep.txt'
+
+runs:
+  using: composite
+  steps:
+    - name: Generate RunID and prep.txt
+      shell: bash
+      run: |
+        echo "Preparation stage: Generating RunID"
+        RUN_ID=$(uuidgen)
+        echo "RunID=$RUN_ID" > prep.txt
+        echo "Build Number: $GITHUB_RUN_NUMBER"
+        cat prep.txt
+
+    - name: Upload prep.txt artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: prepData
+        path: prep.txt
